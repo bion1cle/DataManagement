@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+  datamanagement.api:
+    image: datamanagement.api
+    build:
+      context: ./DataManagement.API
+      dockerfile: Dockerfile
