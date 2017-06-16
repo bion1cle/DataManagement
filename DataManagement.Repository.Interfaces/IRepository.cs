@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace DataManagement.Repository.Interfaces
@@ -10,5 +11,8 @@ namespace DataManagement.Repository.Interfaces
         void Add(T entity);
         void Delete(int id);
         void Update(T entity);
+
+        IEnumerable<T> GetTransactionsForDateRange(DateTime start, DateTime end, int? idPortfolio,
+            int? idPortfolioList);
     }
 }

@@ -9,11 +9,14 @@ namespace DataManagement.Repository
     public class BaseRepository : IDisposable
     {
         protected readonly IDbConnection con;
+        protected readonly IDbConnection conIMDWH;
 
         protected BaseRepository()
         {
-            string connectionstring = "Data source=localhost;Initial Catalog=DataManagement;Integrated Security=SSPI;";
+            string connectionstring = @"Data source=.\CUST;Initial Catalog=IMSTG;Integrated Security=SSPI;";
             con = new SqlConnection(connectionstring);
+            connectionstring = @"Data source=.\CUST;Initial Catalog=IMDWH;Integrated Security=SSPI;";
+            conIMDWH = new SqlConnection(connectionstring);
         }
 
         #region IDisposable Support

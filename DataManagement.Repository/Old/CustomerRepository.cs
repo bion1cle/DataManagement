@@ -58,5 +58,10 @@ namespace DataManagement.Repository
             parameters.Add("@CustomerMobile", entity.CustomerMobile);
             SqlMapper.Execute(con, "UpdateCustomer", param: parameters, commandType: StoredProcedure);
         }
+
+        public IEnumerable<Customer> GetTransactionsForDateRange(DateTime start, DateTime end, int? idPortfolio, int? idPortfolioList)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
