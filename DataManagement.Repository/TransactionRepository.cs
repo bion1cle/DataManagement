@@ -47,5 +47,10 @@ namespace DataManagement.Repository
                 commandType: System.Data.CommandType.StoredProcedure).ToList();
             return transactionList;
         }
+
+        public IEnumerable<Transaction> Get(DateTime start, DateTime end, int? idPortfolio, int? idPortfolioList)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

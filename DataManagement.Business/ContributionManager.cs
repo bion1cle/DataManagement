@@ -13,11 +13,15 @@ namespace DataManagement.Business
         private IServiceProvider _serviceProvider = null;
         public PortfolioListManager _portfolioListManager = null;
         public TransactionManager _transactionManager = null;
+        public TransactionsBankAccountsManager _transactionsBankAccountsManager = null;
 
-        public ContributionManager(IManager<PortfolioList> portfolioListManager, IManager<Transaction> transactionManager)
+        public ContributionManager(IManager<PortfolioList> portfolioListManager
+            , IManager<Transaction> transactionManager
+            , IManager<TransactionsBankAccounts> transactionBankAccountsManager)
         {
             _portfolioListManager = portfolioListManager as PortfolioListManager;
             _transactionManager = transactionManager as TransactionManager;
+            _transactionsBankAccountsManager = transactionBankAccountsManager as TransactionsBankAccountsManager;
             //_serviceProvider = new ServiceCollection()
             //    //.AddLogging()
             //    //.AddSingleton<IFooService, FooService>()
@@ -45,6 +49,12 @@ namespace DataManagement.Business
             {
                 Console.WriteLine(l.HoldingKeyLocalGAAP);
             }
+            _transactionsBankAccountsManager.LoadData(start, end, idPortfolio);
+            foreach (var t in _transactionsBankAccountsManager.Data)
+            {
+                Console.WriteLine(t.HoldingKeyLocalGAAP + "----" + t.SecurityShortName);
+            }
+
         }
     }
 }

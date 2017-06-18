@@ -39,5 +39,10 @@ namespace DataManagement.Repository
         {
             throw new NotImplementedException();
         }
+
+        public IEnumerable<Portfolio> Get(DateTime start, DateTime end, int? idPortfolio, int? idPortfolioList)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

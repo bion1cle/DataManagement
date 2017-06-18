@@ -14,5 +14,7 @@ namespace DataManagement.Repository.Interfaces
 
         IEnumerable<T> GetTransactionsForDateRange(DateTime start, DateTime end, int? idPortfolio,
             int? idPortfolioList);
+
+        IEnumerable<T> Get(DateTime start, DateTime end, int? idPortfolio, int? idPortfolioList);
     }
 }
