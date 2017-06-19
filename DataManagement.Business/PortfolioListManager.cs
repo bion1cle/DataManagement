@@ -18,6 +18,11 @@ namespace DataManagement.Business
             this.Data = _portfolioListRepository.Get();
         }
 
+        public void LoadData(DateTime start, DateTime end, int? idPortfolio, int? idPortfolioList)
+        {
+            throw new NotImplementedException();
+        }
+
         public void LoadData(DateTime start, DateTime end, int idPortfolio)
         {
             throw new NotImplementedException();

@@ -73,7 +73,7 @@ namespace DataManagement.Entities
         {
             get; set;
         }
-        public string PortfolioName
+        public string PortfolioShortName
         {
             get; set;
         }

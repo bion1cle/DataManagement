@@ -17,10 +17,11 @@ namespace DataManagement.Business
             throw new NotImplementedException();
         }
 
-        public void LoadData(DateTime start, DateTime end, int idPortfolio)
+        public void LoadData(DateTime start, DateTime end, int? idPortfolio, int? idPortfolioList)
         {
-            throw new NotImplementedException();
+            this.Data = base.Repository.Get(start, end, idPortfolio, idPortfolioList);
         }
+        
 
         public IEnumerable<DailyReturns> Data { get; set; }
     }

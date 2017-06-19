@@ -19,12 +19,11 @@ namespace DataManagement.Business
             _transactionRepository.Get();
         }
 
-        public void LoadData(DateTime start, DateTime end, int idPortfolio)
+        public void LoadData(DateTime start, DateTime end, int? idPortfolio, int? idPortfolioList)
         {
-            //this.Data = _transactionRepository.GetTransactionsForDateRange(start, end, idPortfolio, null);
-            this.Data = base.Repository.GetTransactionsForDateRange(start, end, idPortfolio, null);
-            //ManagerBase<Transaction>,
+            this.Data = base.Repository.GetTransactionsForDateRange(start, end, idPortfolio, idPortfolioList);
         }
+        
 
         public IEnumerable<Transaction> Data { get; set; }
 

@@ -17,10 +17,11 @@ namespace DataManagement.Business
             throw new NotImplementedException();
         }
 
-        public void LoadData(DateTime start, DateTime end, int idPortfolio)
+        public void LoadData(DateTime start, DateTime end, int? idPortfolio, int? idPortfolioList)
         {
-            this.Data = base.Repository.GetTransactionsForDateRange(start, end, idPortfolio, null);
+            this.Data = base.Repository.GetTransactionsForDateRange(start, end, idPortfolio, idPortfolioList);
         }
+        
 
         public IEnumerable<TransactionsBankAccounts> Data { get; set; }
     }

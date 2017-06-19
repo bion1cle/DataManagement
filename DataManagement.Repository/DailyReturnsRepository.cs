@@ -47,7 +47,7 @@ namespace DataManagement.Repository
             parameters.Add("@idPortfolio", idPortfolio.HasValue ? idPortfolio : null, System.Data.DbType.Int32);
             parameters.Add("@IdPortfolioList", idPortfolioList.HasValue ? idPortfolioList : null, System.Data.DbType.Int32);
 
-            IList<DailyReturns> transactionList = SqlMapper.Query<DailyReturns>(con, "RIED.ssss", param: parameters,
+            IList<DailyReturns> transactionList = SqlMapper.Query<DailyReturns>(con, "RIED.uspPerformanceContributionGetDailyReturnsData", param: parameters,
                 commandType: System.Data.CommandType.StoredProcedure).ToList();
             return transactionList;
         }

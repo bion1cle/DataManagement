@@ -1,0 +1,3 @@
+﻿CREATE SCHEMA [RIED]
+    AUTHORIZATION dbo;
+
