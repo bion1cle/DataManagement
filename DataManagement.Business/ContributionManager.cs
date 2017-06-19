@@ -59,7 +59,7 @@ namespace DataManagement.Business
             }
 
             _dailyReturnsManager.LoadData(start, end, idPortfolio, null);
-            foreach (var d in _dailyReturnsManager.Data.Where(s=>s.SecurityShortName == "DE0007100000"))
+            foreach (var d in _dailyReturnsManager.Data.Where(s=>s.SecurityShortName == "FXF16600106"))
             {
                 Console.WriteLine("{0}---{1}---{2}---{3}", d.PortfolioShortName, d.SecurityShortName, d.Date.ToString("yyyyMMdd"), d.DirtyValuePC);                            
             }
