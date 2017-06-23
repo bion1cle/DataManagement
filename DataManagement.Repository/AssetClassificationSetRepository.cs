@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Dapper;
 using DataManagement.Entities;
 using DataManagement.Repository.Interfaces;
 
@@ -19,7 +21,8 @@ namespace DataManagement.Repository
 
         public IEnumerable<AssetClassificationSet> Get()
         {
-            throw new NotImplementedException();
+            IList<AssetClassificationSet> assetClassificationSet = SqlMapper.Query<AssetClassificationSet>(con, "SELECT ACS.IdAssetClassificationSet\r\n\t\t,ACS.IdAssetClassificationSetType\r\n\t\t,ACS.AssetClassificationSetName\r\n\t\t,ACS.AssetClassificationSetShortName\r\n\t\t,ACS.IsDeleted FROM CCO.AssetClassificationSet AS ACS", commandType: System.Data.CommandType.Text).ToList();
+            return assetClassificationSet;
         }
 
         public AssetClassificationSet Get(int id)

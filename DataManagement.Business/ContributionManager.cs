@@ -15,16 +15,19 @@ namespace DataManagement.Business
         public TransactionManager _transactionManager = null;
         public TransactionsBankAccountsManager _transactionsBankAccountsManager = null;
         public DailyReturnsManager _dailyReturnsManager = null;
+        public AssetTreeManager _assetTreeManager = null;
 
         public ContributionManager(IManager<PortfolioList> portfolioListManager
             , IManager<Transaction> transactionManager
             , IManager<TransactionsBankAccounts> transactionBankAccountsManager
-            , IManager<DailyReturns> dailyReturnsManager)
+            , IManager<DailyReturns> dailyReturnsManager
+            , IManager<AssetTree> assetTreeManager)
         {
             _portfolioListManager = portfolioListManager as PortfolioListManager;
             _transactionManager = transactionManager as TransactionManager;
             _transactionsBankAccountsManager = transactionBankAccountsManager as TransactionsBankAccountsManager;
             _dailyReturnsManager = dailyReturnsManager as DailyReturnsManager;
+            _assetTreeManager = assetTreeManager as AssetTreeManager;
             //_serviceProvider = new ServiceCollection()
             //    //.AddLogging()
             //    //.AddSingleton<IFooService, FooService>()
@@ -116,6 +119,8 @@ namespace DataManagement.Business
             Console.WriteLine(newCol.Count);
             _dailyReturnsManager.Data = newCol;
             Console.WriteLine(_dailyReturnsManager.Data.Count());
+
+            _assetTreeManager.LoadData();
 
 
         }

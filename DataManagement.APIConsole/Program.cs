@@ -31,6 +31,8 @@ namespace DataManagement.APIConsole
                 .AddTransient<IManager<TransactionsBankAccounts>, TransactionsBankAccountsManager>()
                 .AddTransient<IRepository<DailyReturns>, DailyReturnsRepository>()
                 .AddTransient<IManager<DailyReturns>, DailyReturnsManager>()
+                .AddTransient<IRepository<AssetTree>, AssetTreeRepository>()
+                .AddTransient<IManager<AssetTree>, AssetTreeManager>()
 
                 .BuildServiceProvider();
 
@@ -52,6 +54,7 @@ namespace DataManagement.APIConsole
                                                                 , serviceProvider.GetService<IManager<Transaction>>()
                                                                 , serviceProvider.GetService<IManager<TransactionsBankAccounts>>()
                                                                 , serviceProvider.GetService<IManager<DailyReturns>>()
+                                                                , serviceProvider.GetService<IManager<AssetTree>>()
                                                                 );
             //ContributionManager contri = new ContributionManager();
             //contri._portfolioListManager = serviceProvider.GetService<IManager<PortfolioList>>() as PortfolioListManager;
