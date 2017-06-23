@@ -119,5 +119,10 @@ namespace DataManagement.Business
 
 
         }
+
+        public void CalcRun1()
+        {
+
+        }
     }
 }
