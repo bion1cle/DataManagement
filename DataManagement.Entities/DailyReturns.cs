@@ -19,7 +19,7 @@ namespace DataManagement.Entities
             get; set;
         }
 
-        public double DirtyValuePC
+        public double? DirtyValuePC
         {
             get; set;
         }
@@ -94,6 +94,11 @@ namespace DataManagement.Entities
         {
             get; set;
         }
+
+        public string CurrencyShortName
+        { get; set; }
+
+        public double QuoteFactor { get; set; }
 
     }
 }

@@ -24,7 +24,7 @@ namespace DataManagement.Entities
             get; set;
         }
 
-        public double PaymentAmountPC
+        public double? PaymentAmountPC
         {
             get; set;
         }

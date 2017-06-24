@@ -6,7 +6,7 @@ using DataManagement.Repository.Interfaces;
 
 namespace DataManagement.Business
 {
-    public class TransactionManager : ManagerBase<Transaction>, IManager<Transaction>
+    public class TransactionManager : BaseManager<Transaction>, IManager<Transaction>
     {
         private readonly IRepository<Transaction> _transactionRepository;
         public TransactionManager(IRepository<Transaction> transactionRepository):base(transactionRepository)

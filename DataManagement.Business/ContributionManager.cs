@@ -5,6 +5,7 @@ using DataManagement.Business.Interfaces;
 using DataManagement.Entities;
 using DataManagement.Repository.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
+using DataManagement.Common;
 
 namespace DataManagement.Business
 {
@@ -16,18 +17,24 @@ namespace DataManagement.Business
         public TransactionsBankAccountsManager _transactionsBankAccountsManager = null;
         public DailyReturnsManager _dailyReturnsManager = null;
         public AssetTreeManager _assetTreeManager = null;
+        public PositionFactManager _positionFactManager = null;
+        DateTime start = new DateTime(2017, 4, 30);
+        DateTime end = new DateTime(2017, 5, 31);
+        int idPortfolio = 41;
 
         public ContributionManager(IManager<PortfolioList> portfolioListManager
             , IManager<Transaction> transactionManager
             , IManager<TransactionsBankAccounts> transactionBankAccountsManager
             , IManager<DailyReturns> dailyReturnsManager
-            , IManager<AssetTree> assetTreeManager)
+            , IManager<AssetTree> assetTreeManager
+            , IManager<PositionFactData> positionFactDataManager)
         {
             _portfolioListManager = portfolioListManager as PortfolioListManager;
             _transactionManager = transactionManager as TransactionManager;
             _transactionsBankAccountsManager = transactionBankAccountsManager as TransactionsBankAccountsManager;
             _dailyReturnsManager = dailyReturnsManager as DailyReturnsManager;
             _assetTreeManager = assetTreeManager as AssetTreeManager;
+            _positionFactManager = positionFactDataManager as PositionFactManager;
             //_serviceProvider = new ServiceCollection()
             //    //.AddLogging()
             //    //.AddSingleton<IFooService, FooService>()
@@ -46,9 +53,7 @@ namespace DataManagement.Business
                 Console.WriteLine(l.Portfolio);
             }
 
-            DateTime start = new DateTime(2017, 4, 1);
-            DateTime end = new DateTime(2017, 5, 31);
-            int idPortfolio = 41;
+            
 
             _transactionManager.LoadData(start, end, idPortfolio, null);
             foreach (var l in _transactionManager.Data)
@@ -121,13 +126,112 @@ namespace DataManagement.Business
             Console.WriteLine(_dailyReturnsManager.Data.Count());
 
             _assetTreeManager.LoadData();
-
+            _positionFactManager.LoadData(start, end, null, null);
 
         }
 
         public void CalcRun1()
         {
+            //var query = _dailyReturnsManager.Data.OrderBy(p=>p.Date).SelectWithPrevious((prev, cur) =>
+            //    new
+            //    {
+            //        Date = cur.Date
+            //        , PortName = cur.PortfolioShortName
+            //        , SecName = cur.SecurityShortName
+            //        , dirty = cur.DirtyValuePC
+            //        , dirtyYest = prev.DirtyValuePC
+                    
+            //    });
 
+            //foreach (var d in query)
+            //{
+            //    Console.WriteLine("{0}---{1}---{2}---{3}---{4}", d.Date, d.PortName, d.SecName, d.dirty, d.dirtyYest);
+            //}
+
+            //Gib mir mal ne Liste der Papiere
+            var query = _dailyReturnsManager.Data//.Where(s=>s.SecurityShortName == "DE0007100000")
+                //.Where(w=>w.Date >= start)
+                .GroupBy(s => new{
+                    s.SecurityShortName
+                    , s.IdPortfolio
+                    , s.IdPositionCurrency
+                    , s.LegNumber
+                } )                
+                .Select(grp => new {Sec = grp.Key, Items = grp.OrderBy(o=>o.Date).ToList()});
+                
+            foreach (var d in query)
+            {
+                Console.WriteLine(d.Sec);
+                Console.WriteLine(d.Items.Count);
+                //Console.WriteLine("{0}---{1}---{2}---{3}---{4}", d.Items., d.SecurityShortName, "", "", "");
+                DailyReturns previous = null;
+                foreach (var i in d.Items)
+                {
+                    if (previous != null)
+                    {
+                        
+                        Console.WriteLine("{0}---{1}---{2}---{3}---{4}---{5}----IdSec:{6}----{7}", i.Date, i.PortfolioShortName ,i.SecurityShortName, i.DirtyValuePC, previous.DirtyValuePC, CalcCleanPL(i,previous), i.IdSecurity, _positionFactManager.CalculatePortfolioValue(i.Date, idPortfolio, null) );
+                    }
+                    previous = i;
+                }
+            }
+
+        }
+
+        private double CalcCleanPL(DailyReturns current, DailyReturns previous )
+        {
+            double cleanPL = 0;
+            Transaction correspondingTransaction = GetCorrespondingTransaction(current);//null;
+            if (previous.DirtyValuePC.HasValue)
+            {
+                cleanPL = current.DirtyValuePC.Value - previous.DirtyValuePC.Value;
+            }
+            else
+            {
+                //correspondingTransaction = GetCorrespondingTransaction(current);
+                cleanPL = current.DirtyValuePC.Value -
+                          (correspondingTransaction != null ? 0: current.DirtyValuePC.Value);
+            }
+            if (correspondingTransaction != null) cleanPL -= correspondingTransaction.PaymentAmountPC ?? 0;
+
+            if (current.InvestmentTyp != "Kontokorrent")
+            {
+                if (correspondingTransaction != null)
+                    cleanPL += correspondingTransaction.PaymentAmountPC ?? 0;
+                else
+                    cleanPL += 0;
+
+            }
+            else
+            {
+                if (previous.DirtyValuePC.HasValue)
+                {
+                    if (GetCorrespondingTransactionBankAccount(current) != null)
+                        cleanPL += GetCorrespondingTransactionBankAccount(current).PaymentAmountPC ?? 0;
+                    else
+                        cleanPL += 0;
+                }
+                else
+                {
+                    cleanPL += 0;
+                }
+            }
+
+            return cleanPL;
+        }
+
+        private Transaction GetCorrespondingTransaction(DailyReturns current)
+        {
+            var query = _transactionManager.Data.Where(
+                w => (w.TradeDate == current.Date) && (w.HoldingKeyLocalGAAP == current.HOLKEYIK) &&
+                     (w.Legnumber == current.LegNumber));
+            return query.FirstOrDefault();
+        }
+        private TransactionsBankAccounts GetCorrespondingTransactionBankAccount(DailyReturns current)
+        {
+            var query = _transactionsBankAccountsManager.Data.Where(
+                w => (w.TradeDate == current.Date) && (w.IdBankAccount == current.IdSecurity) );
+            return query.FirstOrDefault();
         }
     }
 }

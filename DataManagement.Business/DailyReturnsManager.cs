@@ -6,7 +6,7 @@ using DataManagement.Repository.Interfaces;
 
 namespace DataManagement.Business
 {
-    public class DailyReturnsManager : ManagerBase<DailyReturns>, IManager<DailyReturns>
+    public class DailyReturnsManager : BaseManager<DailyReturns>, IManager<DailyReturns>
     {
         public DailyReturnsManager(IRepository<DailyReturns> repository) : base(repository)
         {

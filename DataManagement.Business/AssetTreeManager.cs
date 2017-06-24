@@ -6,15 +6,20 @@ using DataManagement.Repository.Interfaces;
 
 namespace DataManagement.Business
 {
-    public class AssetTreeManager : ManagerBase<AssetTree>, IManager<AssetTree>
+    public class AssetTreeManager : BaseManager<AssetTree>, IManager<AssetTree>
     {
-        public AssetTreeManager(IRepository<AssetTree> repository) : base(repository)
+        private IRepository<SecurityToAssetClassification> _secRepository = null;
+        public AssetTreeManager(IRepository<AssetTree> repository, IRepository<SecurityToAssetClassification> secRepository) : base(repository)
         {
+            _secRepository = secRepository;
         }
 
         public void LoadData()
         {
             this.Data = base.Repository.Get();
+
+            
+
         }
 
         public void LoadData(DateTime start, DateTime end, int? idPortfolio, int? idPortfolioList)
