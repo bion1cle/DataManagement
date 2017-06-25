@@ -12,6 +12,7 @@ namespace DataManagement.Business
     {
         public PositionFactManager(IRepository<PositionFactData> repository) : base(repository)
         {
+            PortfolioValueDictionary = new Dictionary<DateTime, PortfolioValue>();
         }
 
         public void LoadData()
@@ -26,7 +27,7 @@ namespace DataManagement.Business
 
         public IEnumerable<PositionFactData> Data { get; set; }
 
-        public double CalculatePortfolioValue(DateTime date, int? idPortfolio, int? idPortfolioList)
+        private double CalculatePortfolioValue(DateTime date, int? idPortfolio, int? idPortfolioList)
         {
             double portfolioValue = 0;
             if (idPortfolio.HasValue)
@@ -44,5 +45,31 @@ namespace DataManagement.Business
                     "One parameter must have a value");
         }
 
+        public void FillPortfolioValueDictionary(DateTime startDate, int idPortfolio)
+        {
+            DateTime current = startDate;
+            while (current.Date<DateTime.Now.Date)
+            {
+                PortfolioValueDictionary.Add(current, new PortfolioValue
+                {
+                    Date = current
+                    , IdPortfolio = idPortfolio
+                    , PortfolioValuePerDay = CalculatePortfolioValue(current, idPortfolio, null)
+                });
+                /*CalculatePortfolioValue(current, idPortfolio, null)*/;
+                current = current.AddDays(1);
+            }
+            
+        }
+
+        public Dictionary<DateTime, PortfolioValue> PortfolioValueDictionary { get; set; }
+
+    }
+
+    public class PortfolioValue
+    {
+        public DateTime Date { get; set; }
+        public int IdPortfolio { get; set; }
+        public double PortfolioValuePerDay { get; set; }
     }
 }

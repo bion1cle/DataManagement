@@ -18,6 +18,7 @@ namespace DataManagement.APIConsole
         {
             
             Console.WriteLine("Hello World!");
+            Console.ReadLine();
             var serviceProvider = new ServiceCollection()
                 //.AddLogging()
                 //.AddSingleton<IFooService, FooService>()
@@ -36,7 +37,10 @@ namespace DataManagement.APIConsole
                 .AddTransient<IRepository<SecurityToAssetClassification>, SecurityToAssetClassificationRepository>()
                 .AddTransient<IRepository<PositionFactData>, PositionFactDataRepository>()
                 .AddTransient<IManager<PositionFactData>, PositionFactManager>()
-
+                .AddTransient<IManager<TransactionFXS>, TransactionFXSManager>()
+                .AddTransient<IRepository<TransactionFXS>, TransactionFXSRepository>()
+                .AddTransient<IManager<TransactionsBankAccountsDTG>, TransactionsBankAccountsDTGManager>()
+                .AddTransient<IRepository<TransactionsBankAccountsDTG>, TransactionsBankAccountsDTGRepository>()
                 .BuildServiceProvider();
 
             //var prog = serviceProvider.GetService<IRepository<Portfolio>>();
@@ -59,6 +63,8 @@ namespace DataManagement.APIConsole
                                                                 , serviceProvider.GetService<IManager<DailyReturns>>()
                                                                 , serviceProvider.GetService<IManager<AssetTree>>()
                                                                 , serviceProvider.GetService<IManager<PositionFactData>>()
+                                                                , serviceProvider.GetService<IManager<TransactionFXS>>()
+                                                                , serviceProvider.GetService<IManager<TransactionsBankAccountsDTG>>()
                                                                 );
             //ContributionManager contri = new ContributionManager();
             //contri._portfolioListManager = serviceProvider.GetService<IManager<PortfolioList>>() as PortfolioListManager;

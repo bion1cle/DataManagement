@@ -12,13 +12,16 @@ namespace DataManagement.Business
     public class ContributionManager
     {
         private IServiceProvider _serviceProvider = null;
-        public PortfolioListManager _portfolioListManager = null;
-        public TransactionManager _transactionManager = null;
-        public TransactionsBankAccountsManager _transactionsBankAccountsManager = null;
-        public DailyReturnsManager _dailyReturnsManager = null;
-        public AssetTreeManager _assetTreeManager = null;
-        public PositionFactManager _positionFactManager = null;
-        DateTime start = new DateTime(2017, 4, 30);
+        private PortfolioListManager _portfolioListManager = null;
+        private TransactionManager _transactionManager = null;
+        private TransactionsBankAccountsManager _transactionsBankAccountsManager = null;
+        private DailyReturnsManager _dailyReturnsManager = null;
+        private AssetTreeManager _assetTreeManager = null;
+        private PositionFactManager _positionFactManager = null;
+        private TransactionFXSManager _transactionFXSManager = null;
+        private TransactionsBankAccountsDTGManager _transactionsBankAccountsDTGManager = null;
+
+        DateTime start = new DateTime(2017, 1, 1);
         DateTime end = new DateTime(2017, 5, 31);
         int idPortfolio = 41;
 
@@ -27,7 +30,10 @@ namespace DataManagement.Business
             , IManager<TransactionsBankAccounts> transactionBankAccountsManager
             , IManager<DailyReturns> dailyReturnsManager
             , IManager<AssetTree> assetTreeManager
-            , IManager<PositionFactData> positionFactDataManager)
+            , IManager<PositionFactData> positionFactDataManager
+            , IManager<TransactionFXS> transactionFXSManager
+            , IManager<TransactionsBankAccountsDTG> transactionsBankAccountsDTGManager
+            )
         {
             _portfolioListManager = portfolioListManager as PortfolioListManager;
             _transactionManager = transactionManager as TransactionManager;
@@ -35,6 +41,9 @@ namespace DataManagement.Business
             _dailyReturnsManager = dailyReturnsManager as DailyReturnsManager;
             _assetTreeManager = assetTreeManager as AssetTreeManager;
             _positionFactManager = positionFactDataManager as PositionFactManager;
+            _transactionFXSManager = transactionFXSManager as TransactionFXSManager;
+            _transactionsBankAccountsDTGManager =
+                transactionsBankAccountsDTGManager as TransactionsBankAccountsDTGManager;
             //_serviceProvider = new ServiceCollection()
             //    //.AddLogging()
             //    //.AddSingleton<IFooService, FooService>()
@@ -116,17 +125,21 @@ namespace DataManagement.Business
             var newCol = _dailyReturnsManager.Data.ToList();
             foreach (var d in query.ToList())
             {
-                Console.WriteLine("{0}---{1}---{2}---{3}", d.PortfolioShortName, d.SecurityShortName, d.Date.ToString("yyyyMMdd"), d.DirtyValuePC);
+                //Console.WriteLine("{0}---{1}---{2}---{3}", d.PortfolioShortName, d.SecurityShortName, d.Date.ToString("yyyyMMdd"), d.DirtyValuePC);
                 //_dailyReturnsManager.Data.Append(d);
                 newCol.Add(d);
             }
-            Console.WriteLine(_dailyReturnsManager.Data.Count());
-            Console.WriteLine(newCol.Count);
+            //Console.WriteLine(_dailyReturnsManager.Data.Count());
+            //Console.WriteLine(newCol.Count);
             _dailyReturnsManager.Data = newCol;
-            Console.WriteLine(_dailyReturnsManager.Data.Count());
+            //Console.WriteLine(_dailyReturnsManager.Data.Count());
 
             _assetTreeManager.LoadData();
             _positionFactManager.LoadData(start, end, null, null);
+            _positionFactManager.FillPortfolioValueDictionary(start, idPortfolio);
+            _transactionFXSManager.LoadData(start, end, idPortfolio, null);
+            
+            //_transactionsBankAccountsDTGManager.LoadData(start, end, idPortfolio, null);
 
         }
 
@@ -169,12 +182,33 @@ namespace DataManagement.Business
                 {
                     if (previous != null)
                     {
-                        
-                        Console.WriteLine("{0}---{1}---{2}---{3}---{4}---{5}----IdSec:{6}----{7}", i.Date, i.PortfolioShortName ,i.SecurityShortName, i.DirtyValuePC, previous.DirtyValuePC, CalcCleanPL(i,previous), i.IdSecurity, _positionFactManager.CalculatePortfolioValue(i.Date, idPortfolio, null) );
+                        double clean = CalcCleanPL(i, previous);
+                        double portValueToday = 0;
+                        double portValueYest = 0;
+                        double factor = 0;
+                        if (_positionFactManager.PortfolioValueDictionary.ContainsKey(i.Date))
+                            portValueToday = _positionFactManager.PortfolioValueDictionary.FirstOrDefault(dd => dd.Key == i.Date).Value.PortfolioValuePerDay;
+                        if (_positionFactManager.PortfolioValueDictionary.ContainsKey(previous.Date))
+                            portValueYest = _positionFactManager.PortfolioValueDictionary.FirstOrDefault(dd => dd.Key == previous.Date).Value.PortfolioValuePerDay;
+                        //_positionFactManager.CalculatePortfolioValue(i.Date, idPortfolio, null);
+
+                        //Faktor ist nichts anderes als die CleanPL / PortfolioValue von gestern +1
+                        factor = clean / portValueYest + 1;
+
+                        Console.WriteLine("{0}---{1}---{2}---{3}---{4}---{5}----IdSec:{6}----{7}----{8}----{9}", i.Date, i.PortfolioShortName ,i.SecurityShortName, i.DirtyValuePC, 
+                            previous.DirtyValuePC, clean, i.IdSecurity, portValueToday, portValueYest, factor );
                     }
                     previous = i;
                 }
             }
+
+
+
+            
+
+
+
+
 
         }
 
@@ -182,6 +216,8 @@ namespace DataManagement.Business
         {
             double cleanPL = 0;
             Transaction correspondingTransaction = GetCorrespondingTransaction(current);//null;
+            FXSValue correspondingTransactionFXS = GetCorrespondingTransactionFXS(current);
+
             if (previous.DirtyValuePC.HasValue)
             {
                 cleanPL = current.DirtyValuePC.Value - previous.DirtyValuePC.Value;
@@ -216,6 +252,8 @@ namespace DataManagement.Business
                     cleanPL += 0;
                 }
             }
+            if (correspondingTransactionFXS != null)
+                cleanPL += correspondingTransactionFXS.Perf ?? 0;
 
             return cleanPL;
         }
@@ -231,6 +269,20 @@ namespace DataManagement.Business
         {
             var query = _transactionsBankAccountsManager.Data.Where(
                 w => (w.TradeDate == current.Date) && (w.IdBankAccount == current.IdSecurity) );
+            return query.FirstOrDefault();
+        }
+        private TransactionsBankAccounts GetCorrespondingTransactionBankAccountDTG(DailyReturns current)
+        {
+            var query = _transactionsBankAccountsManager.Data.Where(
+                w => (w.TradeDate == current.Date) && (w.IdBankAccount == current.IdSecurity));
+            return query.FirstOrDefault();
+        }
+        private FXSValue GetCorrespondingTransactionFXS(DailyReturns current)
+        {
+            var query = _transactionFXSManager.FXData.Where(
+                w => (w.TradeDate == current.Date) && (w.IdSecurity == current.IdSecurity)
+                && (w.HoldingKeyLocalGAAP == current.HOLKEYIK)
+                );
             return query.FirstOrDefault();
         }
     }
