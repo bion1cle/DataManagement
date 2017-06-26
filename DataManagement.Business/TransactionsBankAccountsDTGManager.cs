@@ -20,7 +20,7 @@ namespace DataManagement.Business
 
         public void LoadData(DateTime start, DateTime end, int? idPortfolio, int? idPortfolioList)
         {
-            throw new NotImplementedException();
+            this.Data = base.Repository.GetTransactionsForDateRange(start, end, idPortfolio, idPortfolioList);
         }
 
         public IEnumerable<TransactionsBankAccountsDTG> Data { get; set; }

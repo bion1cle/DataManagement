@@ -36,16 +36,16 @@ namespace DataManagement.Repository
 
         public IEnumerable<TransactionsBankAccountsDTG> GetTransactionsForDateRange(DateTime start, DateTime end, int? idPortfolio, int? idPortfolioList)
         {
-            //DynamicParameters parameters = new DynamicParameters();
-            //parameters.Add("@startDate", start, System.Data.DbType.Date);
-            //parameters.Add("@endDate", end, System.Data.DbType.Date);
-            //parameters.Add("@idPortfolio", idPortfolio.HasValue ? idPortfolio : null, System.Data.DbType.Int32);
-            //parameters.Add("@IdPortfolioList", idPortfolioList.HasValue ? idPortfolioList : null, System.Data.DbType.Int32);
+            DynamicParameters parameters = new DynamicParameters();
+            parameters.Add("@startDate", start, System.Data.DbType.Date);
+            parameters.Add("@endDate", end, System.Data.DbType.Date);
+            parameters.Add("@idPortfolio", idPortfolio.HasValue ? idPortfolio : null, System.Data.DbType.Int32);
+            parameters.Add("@IdPortfolioList", idPortfolioList.HasValue ? idPortfolioList : null, System.Data.DbType.Int32);
 
-            //IList<TransactionsBankAccountsDTG> transactionList = SqlMapper.Query<TransactionsBankAccountsDTG>(con, "RIED.uspPerformanceContributionGetTransactionsBankAccounts", param: parameters,
-            //    commandType: System.Data.CommandType.StoredProcedure).ToList();
-            //return transactionList;
-            throw new NotImplementedException();
+            IList<TransactionsBankAccountsDTG> transactionList = SqlMapper.Query<TransactionsBankAccountsDTG>(con, "RIED.uspPerformanceContributionGetTransactionsBankAccountsDTG", param: parameters,
+                commandType: System.Data.CommandType.StoredProcedure).ToList();
+            return transactionList;
+
         }
 
         public IEnumerable<TransactionsBankAccountsDTG> Get(DateTime start, DateTime end, int? idPortfolio, int? idPortfolioList)

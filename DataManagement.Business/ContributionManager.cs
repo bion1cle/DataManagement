@@ -135,6 +135,7 @@ namespace DataManagement.Business
             //Console.WriteLine(_dailyReturnsManager.Data.Count());
 
             _assetTreeManager.LoadData();
+            _transactionsBankAccountsDTGManager.LoadData(start, end, null, null);
             _positionFactManager.LoadData(start, end, null, null);
             _positionFactManager.FillPortfolioValueDictionary(start, idPortfolio);
             _transactionFXSManager.LoadData(start, end, idPortfolio, null);
